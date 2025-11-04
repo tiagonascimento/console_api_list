@@ -1,0 +1,64 @@
+services:
+  postgres:
+   image: postgres:15
+   container_name: container_postgres_db
+   restart:  unless-stopped
+   environment:
+     POSTGRES_USER: userBank
+     POSTGRES_PASSWORD: 123456
+     POSTGRES_DB: db_Bank
+   ports:
+     - "5432:5432"
+   volumes:
+     - dbdata:/var/lib/postgresql/data
+     - ./scripts:/docker-entrypoint-initdb.d
+   networks:
+     - appnet  
+  bank-web-api:
+    build: 
+     context: . 
+     dockerfile: src/backend/Bank.API/Dockerfile
+    container_name: bank-api
+    depends_on:
+      - postgres
+    expose:
+      - "80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__PostgresConnection=Host=postgres;Port=5432;Database=db_Bank;Username=userBank;Password=123456
+    networks:
+      - appnet
+  
+  bank-console:
+    build:
+      context: .
+      dockerfile: src/backend/Bank.Console/Dockerfile
+    container_name: bank-console
+    depends_on:
+      - postgres
+    environment:
+      - ConnectionStrings__PostgresConnection=Host=postgres;Port=5432;Database=db_Bank;Username=userBank;Password=123456
+    networks:
+      - appnet
+
+  
+  nginx:
+    image: nginx:latest
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - bank-web-api
+    networks:
+      - appnet
+
+volumes:
+  dbdata:
+
+networks:
+  appnet:
+
+
+    
