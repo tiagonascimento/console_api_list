@@ -57,7 +57,7 @@ class Program
                  await servico.AddItem(item);
             }
             Console.WriteLine("Salvando os dados isso pode levar lguns minutos");
-            await save.Commit();
+            //await save.Commit();
             Console.WriteLine("Processo concluido");
 
 
