@@ -54,7 +54,8 @@ class Program
                 if (item?.value == null || item.positionId==null || item.date==null)
                     continue;
                 item.date = DateTime.SpecifyKind(item.date, DateTimeKind.Utc);
-                 await servico.AddItem(item);
+                await servico.AddItem(item);
+                await save.Commit();
             }
             Console.WriteLine("Salvando os dados isso pode levar lguns minutos");
             //await save.Commit();
